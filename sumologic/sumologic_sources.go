@@ -44,6 +44,7 @@ type SourceList struct {
 	Sources []Source `json:"sources"`
 }
 
+
 func resourceSumologicSource() *schema.Resource {
 	return &schema.Resource{
 		Delete: resourceSumologicSourceDelete,

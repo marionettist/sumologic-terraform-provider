@@ -215,6 +215,8 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 	resp, _ := http.DefaultClient.Do(req)
 
 	d, _ := ioutil.ReadAll(resp.Body)
+	respBody := fmt.Sprintf("%s", d)
+	log.Printf("[DEBUG] GET response: %s\n", respBody)
 
 	if resp.StatusCode >= 400 {
 		errMsgFormat := fmt.Sprintf("Status code %d - %%s", resp.StatusCode)
@@ -222,7 +224,7 @@ func (s *Client) Get(urlPath string) ([]byte, string, error) {
 		var errorResponse ErrorResponse
 		err := json.Unmarshal(d, &errorResponse)
 		if err != nil {
-			log.Printf("[DEBUG] client Get response unmarshalling failed %s\n%s\n", err, d)
+			log.Printf("[DEBUG] sumologic client Get response unmarshalling failed %s\n%s\n", err, d)
 			return nil, "", errors.New(fmt.Sprintf(errMsgFormat, err))
 		}
 		return nil, "", errors.New(fmt.Sprintf(errMsgFormat ,errorResponse.Message))
@@ -243,6 +245,8 @@ func (s *Client) Delete(urlPath string) ([]byte, error) {
 	resp, _ := http.DefaultClient.Do(req)
 
 	d, _ := ioutil.ReadAll(resp.Body)
+	respBody := fmt.Sprintf("%s", d)
+	log.Printf("[DEBUG] sumologic DELETE response: %s\n", respBody)
 
 	if resp.StatusCode >= 400 {
 		return nil, errors.New(string(d))

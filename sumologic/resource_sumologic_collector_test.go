@@ -104,7 +104,8 @@ resource "sumologic_collector" "test" {
   description = "MyCollectorDesc"
   category = "Cat"
   timezone = "Europe/Berlin"
-  lookup_by_name=true
+  lookup_by_name = true
+  #foo2 = true
 }
 
 `

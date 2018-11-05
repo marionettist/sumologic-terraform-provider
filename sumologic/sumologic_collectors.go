@@ -115,4 +115,6 @@ type Collector struct {
 	CollectorVersion string          `json:"collectorVersion,omitempty"`
 	LastSeenAlive    int             `json:"lastSeenAlive,omitempty"`
 	Alive            bool            `json:"alive,omitempty"`
+	//Destroy			 bool
+	//LookupByName	 bool
 }
