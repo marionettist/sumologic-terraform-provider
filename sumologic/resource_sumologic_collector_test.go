@@ -48,7 +48,7 @@ func TestAccSumologicCollector_change(t *testing.T) {
 					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyCollector"),
 					resource.TestCheckResourceAttr("sumologic_collector.test", "description", ""),
 					resource.TestCheckResourceAttr("sumologic_collector.test", "category", ""),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", ""),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "UTC"),
 				),
 			},
 			{
@@ -75,9 +75,6 @@ var testAccSumologicCollectorConfigSimple = `
 
 resource "sumologic_collector" "test" {
   name = "MyCollector"
-  # description="CollectorDesc"
-  category="Category"
-  timezone = "Europe/Berlin"
 }
 `
 
