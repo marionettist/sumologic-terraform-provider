@@ -7,12 +7,12 @@ import (
 	"github.com/hashicorp/terraform/terraform"
 )
 
-func TestAccSumologicCollector(t *testing.T) {
+func TestAccSumologicCollector_simple(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCollectorConfig,
+				Config: testAccSumologicCollectorConfigSimple,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCollectorExists("sumologic_collector.test", t),
 					resource.TestCheckResourceAttrSet("sumologic_collector.test", "id"),
@@ -22,22 +22,7 @@ func TestAccSumologicCollector(t *testing.T) {
 	})
 }
 
-func TestAccSumologicCollectorLookupByName(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		Providers: testAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccSumologicCollectorConfigLookupByName,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckCollectorExists("sumologic_collector.test", t),
-					resource.TestCheckResourceAttrSet("sumologic_collector.test", "id"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccSumologicCollectorAllConfig(t *testing.T) {
+func TestAccSumologicCollector_all(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
@@ -52,25 +37,25 @@ func TestAccSumologicCollectorAllConfig(t *testing.T) {
 	})
 }
 
-func TestAccSumologicCollectorChangeConfig(t *testing.T) {
+func TestAccSumologicCollector_change(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccSumologicCollectorConfig,
+				Config: testAccSumologicCollectorConfigSimple,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCollectorExists("sumologic_collector.test", t),
 					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyCollector"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "MyCollectorDesc"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Cat"),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Etc/UTC"),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "description", ""),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "category", ""),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", ""),
 				),
 			},
 			{
 				Config: testAccSumologicCollectorConfigAll,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckCollectorExists("sumologic_collector.test", t),
-					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "CollectorName"),
+					resource.TestCheckResourceAttr("sumologic_collector.test", "name", "MyCollectorName"),
 					resource.TestCheckResourceAttr("sumologic_collector.test", "description", "CollectorDesc"),
 					resource.TestCheckResourceAttr("sumologic_collector.test", "category", "Category"),
 					resource.TestCheckResourceAttr("sumologic_collector.test", "timezone", "Europe/Berlin"),
@@ -86,36 +71,21 @@ func testAccCheckCollectorExists(n string, t *testing.T) resource.TestCheckFunc 
 	}
 }
 
-var testAccSumologicCollectorConfig = `
+var testAccSumologicCollectorConfigSimple = `
 
 resource "sumologic_collector" "test" {
   name = "MyCollector"
-  description = "MyCollectorDesc"
-  category = "Cat"
-  timezone = "Etc/UTC"
-}
-
-`
-
-var testAccSumologicCollectorConfigLookupByName = `
-
-resource "sumologic_collector" "test" {
-  name = "MyOtherCollector"
-  description = "MyCollectorDesc"
-  category = "Cat"
+  # description="CollectorDesc"
+  category="Category"
   timezone = "Europe/Berlin"
-  lookup_by_name=true
 }
-
 `
 
 var testAccSumologicCollectorConfigAll = `
 resource "sumologic_collector" "test" {
-  name="CollectorName"
+  name="MyCollectorName"
   description="CollectorDesc"
   category="Category"
   timezone="Europe/Berlin"
-  lookup_by_name=true
-  destroy=true
 }
 `

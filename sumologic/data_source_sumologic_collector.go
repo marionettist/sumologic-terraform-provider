@@ -71,7 +71,7 @@ func dataSourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) 
 	d.Set("category", collector.Category)
 	d.Set("timezone", collector.TimeZone)
 
-	log.Printf("[DEBUG] data_source_sumologic_collector: retrieved %v", collector)
+	log.Printf("[DEBUG] data_source_sumologic_collector: retrieved %+v", collector)
 	return nil
 }
 

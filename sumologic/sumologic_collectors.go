@@ -3,6 +3,7 @@ package sumologic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 )
 
 func (s *Client) GetCollector(id int) (*Collector, error) {
@@ -11,6 +12,8 @@ func (s *Client) GetCollector(id int) (*Collector, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("GetCollector by id:\n%s", data)
 
 	var response CollectorResponse
 	err = json.Unmarshal(data, &response)
@@ -29,6 +32,8 @@ func (s *Client) GetCollectorName(name string) (*Collector, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("GetCollector by name:\n%s", data)
 
 	var response CollectorList
 	err = json.Unmarshal(data, &response)
@@ -108,9 +113,9 @@ type Collector struct {
 	ID               int             `json:"id,omitempty"`
 	CollectorType    string          `json:"collectorType,omitempty"`
 	Name             string          `json:"name"`
-	Description      string          `json:"description,omitempty"`
-	Category         string          `json:"category,omitempty"`
-	TimeZone         string          `json:"timeZone,omitempty"`
+	Description      string          `json:"description"`
+	Category         string          `json:"category"`
+	TimeZone         string          `json:"timeZone"`
 	Links            []CollectorLink `json:"links,omitempty"`
 	CollectorVersion string          `json:"collectorVersion,omitempty"`
 	LastSeenAlive    int             `json:"lastSeenAlive,omitempty"`

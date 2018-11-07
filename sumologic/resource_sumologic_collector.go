@@ -1,6 +1,8 @@
 package sumologic
 
 import (
+	"fmt"
+	"github.com/hashicorp/terraform/helper/customdiff"
 	"log"
 	"strconv"
 
@@ -13,12 +15,13 @@ func resourceSumologicCollector() *schema.Resource {
 		Read:   resourceSumologicCollectorRead,
 		Delete: resourceSumologicCollectorDelete,
 		Update: resourceSumologicCollectorUpdate,
+		CustomizeDiff: resourceSumologicCollectorCustomizeDiff(),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
+				ForceNew: false,
 			},
 			"description": {
 				Type:     schema.TypeString,
@@ -36,19 +39,8 @@ func resourceSumologicCollector() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
-				Default:  "Etc/UTC",
-			},
-			"lookup_by_name": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  false,
-			},
-			"destroy": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: false,
-				Default:  true,
+				Default: "UTC",
+				//DiffSuppressFunc: timeZoneDiffSuppressFunc,
 			},
 		},
 	}
@@ -83,41 +75,26 @@ func resourceSumologicCollectorRead(d *schema.ResourceData, meta interface{}) er
 func resourceSumologicCollectorDelete(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Get("destroy").(bool) {
-		id, _ := strconv.Atoi(d.Id())
-		return c.DeleteCollector(id)
+	id, err := strconv.Atoi(d.Id())
+	if err != nil {
+		return fmt.Errorf("expected collector id to be int; got %s; %s", d.Id(), err)
 	}
-
-	return nil
+	return c.DeleteCollector(id)
 }
 
 func resourceSumologicCollectorCreate(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*Client)
 
-	if d.Get("lookup_by_name").(bool) {
-		collector, err := c.GetCollectorName(d.Get("name").(string))
+	id, err := c.CreateCollector(Collector{
+		CollectorType: "Hosted",
+		Name:          d.Get("name").(string),
+	})
 
-		if err != nil {
-			return err
-		}
-
-		if collector != nil {
-			d.SetId(strconv.Itoa(collector.ID))
-		}
+	if err != nil {
+		return err
 	}
 
-	if d.Id() == "" {
-		id, err := c.CreateCollector(Collector{
-			CollectorType: "Hosted",
-			Name:          d.Get("name").(string),
-		})
-
-		if err != nil {
-			return err
-		}
-
-		d.SetId(strconv.Itoa(id))
-	}
+	d.SetId(strconv.Itoa(id))
 
 	return resourceSumologicCollectorUpdate(d, meta)
 }
@@ -136,6 +113,22 @@ func resourceSumologicCollectorUpdate(d *schema.ResourceData, meta interface{}) 
 	return resourceSumologicCollectorRead(d, meta)
 }
 
+//func resourceSumologicCollectorCustomizeDiff(diff *schema.ResourceDiff, meta interface{}) error {
+//	return nil
+//}
+
+func resourceSumologicCollectorCustomizeDiff() schema.CustomizeDiffFunc {
+	return customdiff.All(
+		customdiff.IfValueChange("description", condFunc, diffFunc),
+		)
+}
+
+func condFunc(old, new, meta interface{}) bool {
+	return false
+}
+func diffFunc(*schema.ResourceDiff, interface{}) error {
+	return nil
+}
 func resourceToCollector(d *schema.ResourceData) Collector {
 	id, _ := strconv.Atoi(d.Id())
 
